@@ -1,5 +1,7 @@
 package org.xiaoe.test.demo.music;
 
+import org.xiaoe.test.demo.parser.LrcParser;
+
 import android.app.Activity;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -16,6 +18,10 @@ public class MusicPlayer extends Activity {
 	private SeekBar sb = null;
 	private TextView currentTime = null;
 	private TextView totalTime = null;
+	private TextView lrcLine = null;
+	private LrcParser lrc = null;
+
+	private myThread thread = null;
 
 	private Handler mHandle = new Handler() {
 		@Override
@@ -29,6 +35,10 @@ public class MusicPlayer extends Activity {
 					int seconds = (msg.arg1 / 1000) % 60;
 
 					currentTime.setText(minutes + ":" + seconds);
+
+					String sentence = lrc.locateStamp(msg.arg1);
+
+					lrcLine.setText(sentence);
 				}
 
 				if (sb == null) {
@@ -48,7 +58,15 @@ public class MusicPlayer extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		try {
+			initialize();
+		} catch (Exception e) {
+			Log.d("initilaize(): ", e.getMessage());
+		}
+		thread = new myThread();
+	}
 
+	private void initialize() {
 		sb = (SeekBar) findViewById(R.id.seekBar1);
 
 		if (sb == null) {
@@ -57,7 +75,8 @@ public class MusicPlayer extends Activity {
 
 		currentTime = (TextView) findViewById(R.id.textView1);
 		totalTime = (TextView) findViewById(R.id.textView2);
-		english = MediaPlayer.create(this, R.raw.english);
+		lrcLine = (TextView) findViewById(R.id.textView3);
+		english = MediaPlayer.create(this, R.raw.apologize);
 
 		if (english == null) {
 			Log.d("Debug:", "get english == null.");
@@ -68,6 +87,11 @@ public class MusicPlayer extends Activity {
 		if (currentTime == null) {
 			Log.d("Debug:", "get current == null.");
 		}
+
+		if (lrcLine == null) {
+			Log.d("Debug:", "get lrcLine == null.");
+		}
+
 		if (totalTime == null) {
 			Log.d("Debug:", "get totalTime == null.");
 		} else {
@@ -80,7 +104,7 @@ public class MusicPlayer extends Activity {
 			}
 		}
 
-		new myThread().start();
+		lrc = new LrcParser("/res/raw/apologize_lrc.lrc");
 	}
 
 	// # Destroy the current object and the super class.
@@ -88,6 +112,9 @@ public class MusicPlayer extends Activity {
 	protected void onDestroy() {
 		if (english != null) {
 			english.stop();
+		}
+		if (thread.isAlive()) {
+			thread.stop();
 		}
 		super.onDestroy();
 	}
@@ -99,8 +126,12 @@ public class MusicPlayer extends Activity {
 		} else {
 			if (english.isPlaying()) {
 				english.pause();
+				if (thread.isAlive())
+					thread.stop();
 			} else {
 				english.start();
+				if (!thread.isAlive())
+					thread.start();
 			}
 		}
 	}
@@ -110,7 +141,7 @@ public class MusicPlayer extends Activity {
 		public void run() {
 			for (int i = 0; i < Integer.MAX_VALUE; ++i) {
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(10);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

@@ -7,4 +7,5 @@
     <SeekBar android:id="@+id/seekBar1" android:layout_height="wrap_content" android:layout_width="fill_parent" android:clickable="false"></SeekBar>
     <TextView android:text="TextView" android:id="@+id/textView1" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
     <TextView android:text="TextView" android:id="@+id/textView2" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+    <TextView android:text="TextView" android:id="@+id/textView3" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
 </LinearLayout>
