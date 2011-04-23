@@ -29,6 +29,9 @@ public class LrcParser {
 		fillTimeSpots();
 	}
 
+	/**
+	 * Fill time spots.
+	 */
 	private void fillTimeSpots() {
 		timeSpots = new int[stamps.size()];
 		int i = 0;
@@ -41,12 +44,25 @@ public class LrcParser {
 		}
 	}
 
+	/**
+	 * Get the Lrc info corresponding to parameter time.
+	 * 
+	 * @param time
+	 * @return
+	 */
 	public String locateStamp(int time) {
 		int index = searchTimeSpots(time);
 		String stamp = stamps.get(timeSpots[index]);
 		return stamp;
 	}
 
+	/**
+	 * Search index of time spots array corresponding to parameter time. It's a
+	 * binary search process.
+	 * 
+	 * @param time
+	 * @return
+	 */
 	private int searchTimeSpots(int time) {
 
 		int left = 0, right = timeSpots.length - 1;
@@ -76,12 +92,17 @@ public class LrcParser {
 		return left;
 	}
 
+	/**
+	 * Load the Lrc info file with the filename.
+	 * 
+	 * @param filename
+	 */
 	public void loadFile(String filename) {
 
 		Scanner scan = null;
-		
+
 		InputStream in = this.getClass().getResourceAsStream(filename);
-		
+
 		scan = new Scanner(in);
 		while (scan.hasNext()) {
 			String line = scan.nextLine();
@@ -93,6 +114,12 @@ public class LrcParser {
 		}
 	}
 
+	/**
+	 * Check parameter line whether is valid format.
+	 * 
+	 * @param line
+	 * @return
+	 */
 	boolean isValidFormat(String line) {
 		match = pattern.matcher(line);
 		if (match.find()) {
@@ -101,6 +128,11 @@ public class LrcParser {
 		return false;
 	}
 
+	/**
+	 * Parsing a line of Lrc file, and fill stamps, used regular expression.
+	 * 
+	 * @param line
+	 */
 	public void seperateLine(String line) {
 		match = pattern.matcher(line);
 		if (match.find()) {
@@ -115,6 +147,9 @@ public class LrcParser {
 		}
 	}
 
+	/**
+	 * Display the parsing result.
+	 */
 	public void display() {
 		for (String head : header) {
 			System.out.println(head);
