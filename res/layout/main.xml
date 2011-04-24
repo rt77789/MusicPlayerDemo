@@ -2,10 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
-    <Button android:layout_height="wrap_content" android:text="Button" android:onClick="rockHandler" android:layout_width="wrap_content" android:id="@+id/button1"></Button>
-    <SeekBar android:id="@+id/seekBar1" android:layout_height="wrap_content" android:layout_width="fill_parent" android:clickable="false"></SeekBar>
-    <TextView android:text="TextView" android:id="@+id/textView1" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
-    <TextView android:text="TextView" android:id="@+id/textView2" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
-    <TextView android:text="TextView" android:id="@+id/textView3" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+    android:layout_height="fill_parent" android:focusable="true">
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/linearLayout1" android:orientation="vertical">
+        <Button android:layout_height="wrap_content" android:text="Button" android:layout_width="wrap_content" android:id="@+id/button1" android:onClick="rockHandler"></Button>
+        <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="TextView" android:id="@+id/textView3"></TextView>
+        <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="TextView" android:id="@+id/textView2"></TextView>
+        <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="TextView" android:id="@+id/textView1"></TextView>
+        <SeekBar android:id="@+id/seekBar1" android:layout_width="fill_parent" android:clickable="false" android:layout_height="wrap_content"></SeekBar>
+    </LinearLayout>
+    <ScrollView android:layout_width="fill_parent" android:id="@+id/scrollView1" android:layout_height="wrap_content" android:focusable="true">
+        <LinearLayout android:layout_width="fill_parent" android:id="@+id/linearLayout2" android:layout_height="fill_parent" android:orientation="vertical" android:focusable="true"></LinearLayout>
+    </ScrollView>
 </LinearLayout>
