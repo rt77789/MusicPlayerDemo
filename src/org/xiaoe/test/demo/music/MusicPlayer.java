@@ -1,5 +1,6 @@
 package org.xiaoe.test.demo.music;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
@@ -9,6 +10,7 @@ import org.xiaoe.test.demo.util.Pair;
 import org.xiaoe.test.demo.util.Util;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -23,27 +25,28 @@ import android.widget.TextView;
 
 public class MusicPlayer extends Activity {
 
-	
-	private MediaPlayer english = null;	// # MediaPlayer
-	
-	private SeekBar sb = null;	// # SeekBar for displaying process.
+	private MediaPlayer english = null; // # MediaPlayer
 
-	private TextView currentTime = null;		// # TextView for displaying current process position.
-	
-	private TextView totalTime = null;	// # TextView for displaying total time of the mp3 file.
+	private SeekBar sb = null; // # SeekBar for displaying process.
+
+	private TextView currentTime = null; // # TextView for displaying current
+	// process position.
+
+	private TextView totalTime = null; // # TextView for displaying total time
+	// of the mp3 file.
 
 	private TextView lrcLine = null;
 
 	private LrcParser lrc = null;
 
-	private int flushPeriod = 100;	// # The period of flush.
+	private int flushPeriod = 100; // # The period of flush.
 
 	private myThread thread = null;
 
 	private Map<Integer, String> stamps;
-	
+
 	private int[] timeSpots;
-	
+
 	private Map<Integer, TextView> lrcTextView;
 
 	private Handler mHandle = new Handler() {
@@ -59,29 +62,34 @@ public class MusicPlayer extends Activity {
 
 					currentTime.setText(minutes + ":" + seconds);
 
-					String sentence = locateStamp(msg.arg1);
-					// Log.d("xiaoe", "msg.arg1: " + msg.arg1);
-					// Log.d("xiaoe", "locateStamp returns: " + sentence);
+					// # If the lrc is not found, just jump out.
+					if (lrc != null) {
 
-					lrcLine.setText(sentence);
+						String sentence = locateStamp(msg.arg1);
+						// Log.d("xiaoe", "msg.arg1: " + msg.arg1);
+						// Log.d("xiaoe", "locateStamp returns: " + sentence);
 
-					TextView currentLine = locateTextView(msg.arg1);
-					TextView prev = prevTextView(msg.arg1);
-					TextView next = nextTextView(msg.arg1);
+						lrcLine.setText(sentence);
 
-					currentLine.setBackgroundColor(Color.GRAY);
-					if (prev != null) {
-						prev.setBackgroundColor(Color.BLACK);
+						TextView currentLine = locateTextView(msg.arg1);
+						TextView prev = prevTextView(msg.arg1);
+						TextView next = nextTextView(msg.arg1);
 
-						// # Not the first Line, focus on next TextView.
-						if (next != null && !next.requestFocus()) {
-							Log.d("xiaoe", "next.requestFocus() fail.");
-						}
-					} else {
+						currentLine.setBackgroundColor(Color.GRAY);
+						if (prev != null) {
+							prev.setBackgroundColor(Color.BLACK);
 
-						// # First line, focus on current TextView.
-						if (currentLine.requestFocus()) {
-							Log.d("xiaoe", "currentLine.requestFocus() fail.");
+							// # Not the first Line, focus on next TextView.
+							if (next != null && !next.requestFocus()) {
+								Log.d("xiaoe", "next.requestFocus() fail.");
+							}
+						} else {
+
+							// # First line, focus on current TextView.
+							if (currentLine.requestFocus()) {
+								Log.d("xiaoe",
+										"currentLine.requestFocus() fail.");
+							}
 						}
 					}
 				}
@@ -102,16 +110,33 @@ public class MusicPlayer extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
+		setContentView(R.layout.rocking);
+
+		Intent intent = getIntent();
+
+		String value = intent.getStringExtra("mp3Dir");
+
 		try {
-			initialize();
+			initialize(value);
 		} catch (Exception e) {
 			Log.d("initilaize(): ", Util.printStackTrace(e));
 		}
-		Log.d("xiaoe", "onCreate(): thread new.");
+		//Log.d("xiaoe", "onCreate(): thread new.");
 	}
 
-	private void initialize() {
+	private String getLrcDir(String filePath) {
+
+		//Log.d("xiaoe", "filePath is [" + filePath + "]");
+
+		if (filePath.endsWith(".mp3")) {
+			return filePath.substring(0, filePath.length() - ".mp3".length())
+					+ ".lrc";
+		}
+		return null;
+	}
+
+	private void initialize(String filePath) throws IllegalStateException,
+			IOException {
 
 		sb = (SeekBar) findViewById(R.id.seekBar1);
 
@@ -121,7 +146,13 @@ public class MusicPlayer extends Activity {
 		currentTime = (TextView) findViewById(R.id.textView1);
 		totalTime = (TextView) findViewById(R.id.textView2);
 		lrcLine = (TextView) findViewById(R.id.textView3);
-		english = MediaPlayer.create(this, R.raw.apologize);
+
+		english = new MediaPlayer();
+
+		//Log.d("xiaoe", "initialize: argument filePaht is [" + filePath + "]");
+
+		english.setDataSource(filePath);
+		english.prepare();
 
 		ScrollView sView = (ScrollView) findViewById(R.id.scrollView1);
 		if (sView != null) {
@@ -159,7 +190,17 @@ public class MusicPlayer extends Activity {
 
 		stamps = new TreeMap<Integer, String>();
 		lrcTextView = new TreeMap<Integer, TextView>();
-		lrc = new LrcParser("/res/raw/apologize_lrc.lrc");
+
+		String lrcDir = getLrcDir(filePath);
+
+		if (lrcDir == null) {
+			Log.d("xiaoe", "lrcDir is null");
+			return;
+		} else {
+			Log.d("xiaoe", "lrcDir is [" + lrcDir + "]");
+		}
+
+		lrc = new LrcParser(lrcDir);
 
 		LinearLayout lrcPanel = (LinearLayout) findViewById(R.id.linearLayout2);
 

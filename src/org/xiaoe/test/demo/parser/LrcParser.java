@@ -1,6 +1,7 @@
 package org.xiaoe.test.demo.parser;
 
-import java.io.InputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,12 +14,12 @@ public class LrcParser {
 	Pattern pattern;
 	Scanner scan = null;
 
-	public LrcParser(String filename) {
+	public LrcParser(String filename) throws FileNotFoundException {
 		// / [03:55.11]
 		pattern = Pattern.compile("^\\[(\\d{2}):(\\d{2})\\.(\\d{2})\\]");
-		InputStream in = this.getClass().getResourceAsStream(filename);
+		//InputStream in = this.getClass().getResourceAsStream(filename);
 
-		scan = new Scanner(in);
+		scan = new Scanner(new File(filename));
 	}
 
 	public boolean hasNext() {
@@ -61,7 +62,7 @@ public class LrcParser {
 		return null;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 		LrcParser lrc = new LrcParser("risis.lrc");
 		while (lrc.hasNext()) {
 			System.out.println(lrc.next());
