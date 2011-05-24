@@ -3,6 +3,7 @@ package org.xiaoe.test.demo.music;
 import java.io.File;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,7 +11,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 /**
@@ -22,7 +22,7 @@ import android.widget.TextView;
 public class FileSelector extends Activity {
 
 	private final String MAIN_PATH = "/sdcard";
-	private ProgressBar pb = null;
+	private ProgressDialog pd = null;
 	private LinearLayout fileSelectorPanel = null;
 	private Handler handler = null;
 	private Thread fileSelectorThread = null;
@@ -31,29 +31,34 @@ public class FileSelector extends Activity {
 	 * Set progress bar visible/gone and find all 'mp3' files.
 	 * 
 	 * @author aliguagua.zhengy
-	 *
+	 * 
 	 */
 	class FileSelectorRunnable implements Runnable {
+		String dir, fileName;
+
+		FileSelectorRunnable(String dir, String fileName) {
+			this.dir = dir;
+			this.fileName = fileName;
+		}
+
+		FileSelectorRunnable() {
+		}
 
 		@Override
 		public void run() {
 			// # Display the progress bar.
 			handler.post(new Runnable() {
 				public void run() {
-					pb.setVisibility(View.VISIBLE);
+					pd.show();
 				}
 			});
 
-			handler.post(new Runnable() {
-				public void run() {
-					findFile(MAIN_PATH, MAIN_PATH);
-				}
-			});
+			findFile(MAIN_PATH, MAIN_PATH);
 
 			// # Don't display the progress bar.
 			handler.post(new Runnable() {
 				public void run() {
-					pb.setVisibility(View.GONE);
+					pd.dismiss();
 				}
 			});
 		}
@@ -70,7 +75,13 @@ public class FileSelector extends Activity {
 	private void initialize() {
 
 		fileSelectorPanel = (LinearLayout) findViewById(R.id.linearLayoutf);
-		pb = (ProgressBar) findViewById(R.id.progressBar1);
+
+		pd = new ProgressDialog(this);
+		// # Set the progress dialog info.
+		pd.setTitle("Loading");
+		pd.setMessage("loading...");
+		pd.setIndeterminate(true);
+		pd.setCancelable(true);
 
 		if (fileSelectorPanel == null) {
 			Log.d("xiaoe", "fileSelectorPanel is null.");
@@ -141,7 +152,12 @@ public class FileSelector extends Activity {
 			// Log.d("xiaoe", dir + " is a file.");
 
 			if (checkFileType(dir)) {
-				insertView(dir, fileName);
+
+				handler.post(new FileSelectorRunnable(dir, fileName) {
+					public void run() {
+						insertView(dir, fileName);
+					}
+				});
 			}
 		} else {
 			// Log.d("xiaoe", dir + " is else.");
