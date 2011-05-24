@@ -1,17 +1,16 @@
 package org.xiaoe.test.demo.music;
 
 import java.io.File;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 /**
@@ -23,7 +22,42 @@ import android.widget.TextView;
 public class FileSelector extends Activity {
 
 	private final String MAIN_PATH = "/sdcard";
-	private Map<String, String> fileMap;
+	private ProgressBar pb = null;
+	private LinearLayout fileSelectorPanel = null;
+	private Handler handler = null;
+	private Thread fileSelectorThread = null;
+
+	/**
+	 * Set progress bar visible/gone and find all 'mp3' files.
+	 * 
+	 * @author aliguagua.zhengy
+	 *
+	 */
+	class FileSelectorRunnable implements Runnable {
+
+		@Override
+		public void run() {
+			// # Display the progress bar.
+			handler.post(new Runnable() {
+				public void run() {
+					pb.setVisibility(View.VISIBLE);
+				}
+			});
+
+			handler.post(new Runnable() {
+				public void run() {
+					findFile(MAIN_PATH, MAIN_PATH);
+				}
+			});
+
+			// # Don't display the progress bar.
+			handler.post(new Runnable() {
+				public void run() {
+					pb.setVisibility(View.GONE);
+				}
+			});
+		}
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -34,29 +68,28 @@ public class FileSelector extends Activity {
 	}
 
 	private void initialize() {
-		fileMap = new TreeMap<String, String>();
 
-		LinearLayout fileSelectorPanel = (LinearLayout) findViewById(R.id.linearLayoutf);
-		
+		fileSelectorPanel = (LinearLayout) findViewById(R.id.linearLayoutf);
+		pb = (ProgressBar) findViewById(R.id.progressBar1);
+
 		if (fileSelectorPanel == null) {
 			Log.d("xiaoe", "fileSelectorPanel is null.");
 			return;
 		}
 
-		findFile(MAIN_PATH, MAIN_PATH);
+		handler = new Handler();
 
-		for (Entry<String, String> entry : fileMap.entrySet()) {
-			TextView tv = new TextView(this);
-
-			tv.setText(entry.getValue());
-			tv.setContentDescription(entry.getKey());
-			tv.setClickable(true);
-			tv.setOnClickListener(new TextClickListener());
-
-			fileSelectorPanel.addView(tv);
-		}
+		// # Start file selecting thread(display the progress bar).
+		fileSelectorThread = new Thread(new FileSelectorRunnable());
+		fileSelectorThread.start();
 	}
 
+	/**
+	 * Text click listener used for starting new activity.
+	 * 
+	 * @author aliguagua.zhengy
+	 * 
+	 */
 	class TextClickListener implements OnClickListener {
 
 		@Override
@@ -66,19 +99,21 @@ public class FileSelector extends Activity {
 
 			// # Create a new Intent object.
 			Intent intent = new Intent();
-			
+
 			intent.putExtra("mp3Dir", filePath);
-			
+
 			// Jump from FileSelector to MusicPlayer.
 			intent.setClass(FileSelector.this, MusicPlayer.class);
 			// Start the new intent.
 			FileSelector.this.startActivity(intent);
 		}
-
 	}
 
 	/**
 	 * Find all files which has a suffix ".mp3".
+	 * 
+	 * @param dir
+	 * @param fileName
 	 */
 	private void findFile(String dir, String fileName) {
 		File file = new File(dir);
@@ -94,7 +129,7 @@ public class FileSelector extends Activity {
 		// # This dir(file) is a directory or a file or else.
 		if (file.isDirectory()) {
 
-			//Log.d("xiaoe", dir + " is a directory.");
+			// Log.d("xiaoe", dir + " is a directory.");
 
 			String[] lists = file.list();
 			if (lists != null) {
@@ -103,19 +138,37 @@ public class FileSelector extends Activity {
 				}
 			}
 		} else if (file.isFile()) {
-			//Log.d("xiaoe", dir + " is a file.");
+			// Log.d("xiaoe", dir + " is a file.");
 
 			if (checkFileType(dir)) {
-				fileMap.put(dir, fileName);
+				insertView(dir, fileName);
 			}
 		} else {
-			//Log.d("xiaoe", dir + " is else.");
+			// Log.d("xiaoe", dir + " is else.");
 		}
+	}
+
+	/**
+	 * Insert a new TextView to the main page.
+	 * 
+	 * @param dir
+	 * @param fileName
+	 */
+	private void insertView(String dir, String fileName) {
+		TextView tv = new TextView(fileSelectorPanel.getContext());
+
+		tv.setText(fileName);
+		tv.setContentDescription(dir);
+		tv.setClickable(true);
+		tv.setOnClickListener(new TextClickListener());
+
+		fileSelectorPanel.addView(tv);
 	}
 
 	/**
 	 * Check file name whether end with a suffix ".mp3".
 	 * 
+	 * @param fileName
 	 * @return
 	 */
 	private boolean checkFileType(String fileName) {
