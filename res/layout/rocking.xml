@@ -8,9 +8,8 @@
 		<Button android:layout_height="wrap_content" android:text="Button"
 			android:layout_width="wrap_content" android:id="@+id/button1"
 			android:onClick="rockHandler"></Button>
-		<TextView android:layout_height="wrap_content"
-			android:layout_width="wrap_content" android:text="TextView"
-			android:id="@+id/textView3"></TextView>
+		<TextView android:layout_width="wrap_content" android:text="TextView"
+			android:id="@+id/textView3" android:layout_height="20dip"></TextView>
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:text="TextView"
 			android:id="@+id/textView2"></TextView>
