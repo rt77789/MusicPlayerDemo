@@ -5,21 +5,19 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import org.xiaoe.test.demo.lrcview.LrcView;
 import org.xiaoe.test.demo.parser.LrcParser;
 import org.xiaoe.test.demo.util.Pair;
 import org.xiaoe.test.demo.util.Util;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -36,6 +34,8 @@ public class MusicPlayer extends Activity {
 	// of the mp3 file.
 
 	private TextView lrcLine = null;
+
+	private LrcView lrcView = null;
 
 	private LrcParser lrc = null;
 
@@ -66,31 +66,11 @@ public class MusicPlayer extends Activity {
 					if (lrc != null) {
 
 						String sentence = locateStamp(msg.arg1);
-						// Log.d("xiaoe", "msg.arg1: " + msg.arg1);
-						// Log.d("xiaoe", "locateStamp returns: " + sentence);
-
 						lrcLine.setText(sentence);
 
-						TextView currentLine = locateTextView(msg.arg1);
-						TextView prev = prevTextView(msg.arg1);
-						TextView next = nextTextView(msg.arg1);
-
-						currentLine.setBackgroundColor(Color.GRAY);
-						if (prev != null) {
-							prev.setBackgroundColor(Color.BLACK);
-
-							// # Not the first Line, focus on next TextView.
-							if (next != null && !next.requestFocus()) {
-								Log.d("xiaoe", "next.requestFocus() fail.");
-							}
-						} else {
-
-							// # First line, focus on current TextView.
-							if (currentLine.requestFocus()) {
-								Log.d("xiaoe",
-										"currentLine.requestFocus() fail.");
-							}
-						}
+						int index = searchTimeSpots(msg.arg1);
+						if (lrcView.isCreated())
+							lrcView.update(index);
 					}
 				}
 
@@ -121,12 +101,12 @@ public class MusicPlayer extends Activity {
 		} catch (Exception e) {
 			Log.d("initilaize(): ", Util.printStackTrace(e));
 		}
-		//Log.d("xiaoe", "onCreate(): thread new.");
+		// Log.d("xiaoe", "onCreate(): thread new.");
 	}
 
 	private String getLrcDir(String filePath) {
 
-		//Log.d("xiaoe", "filePath is [" + filePath + "]");
+		// Log.d("xiaoe", "filePath is [" + filePath + "]");
 
 		if (filePath.endsWith(".mp3")) {
 			return filePath.substring(0, filePath.length() - ".mp3".length())
@@ -147,19 +127,15 @@ public class MusicPlayer extends Activity {
 		totalTime = (TextView) findViewById(R.id.textView2);
 		lrcLine = (TextView) findViewById(R.id.textView3);
 
-		english = new MediaPlayer();
+		lrcView = (LrcView) findViewById(R.id.view1);
 
-		//Log.d("xiaoe", "initialize: argument filePaht is [" + filePath + "]");
+		if (lrcView == null) {
+			Log.d("xiaoe", "lrcView == null.");
+		}
+		english = new MediaPlayer();
 
 		english.setDataSource(filePath);
 		english.prepare();
-
-		ScrollView sView = (ScrollView) findViewById(R.id.scrollView1);
-		if (sView != null) {
-			sView.setVerticalScrollBarEnabled(false);
-		} else {
-			Log.d("xiaoe", "sView is null.");
-		}
 
 		if (english == null) {
 			Log.d("Debug:", "get english == null.");
@@ -202,27 +178,17 @@ public class MusicPlayer extends Activity {
 
 		lrc = new LrcParser(lrcDir);
 
-		LinearLayout lrcPanel = (LinearLayout) findViewById(R.id.linearLayout2);
-
 		while (lrc.hasNext()) {
 			Pair<Integer, String> line = lrc.next();
 			if (line == null)
 				continue;
 
-			TextView tv = new TextView(lrcPanel.getContext());
-
-			tv.setText(line.second);
-			tv.setFocusable(true);
-			tv.setFocusableInTouchMode(true);
-
 			stamps.put(line.first, line.second);
-
-			lrcTextView.put(line.first, tv);
-
-			lrcPanel.addView(tv);
 		}
 
 		fillTimeSpots();
+
+		lrcView.setStamps(stamps);
 	}
 
 	// # Destroy the current object and the super class.
