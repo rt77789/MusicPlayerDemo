@@ -79,7 +79,7 @@ public class FileSelector extends Activity {
 		pd = new ProgressDialog(this);
 		// # Set the progress dialog info.
 		pd.setTitle("Loading");
-		pd.setMessage("loading...");
+		pd.setMessage("loading sdcard mp3 files...");
 		pd.setIndeterminate(true);
 		pd.setCancelable(true);
 

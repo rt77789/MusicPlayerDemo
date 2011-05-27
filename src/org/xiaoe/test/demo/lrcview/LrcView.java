@@ -51,6 +51,10 @@ public class LrcView extends SurfaceView implements SurfaceHolder.Callback {
 			Log.d("xiaoe", "new GameCore exception.");
 		}
 	}
+	
+	public void setBackgroundData(byte[] data) {
+		core.setBackgroundData(data);
+	}
 
 	public void setStamps(Map<Integer, String> stamps) {
 		core.setStamps(stamps);
@@ -75,7 +79,7 @@ public class LrcView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	public void surfaceCreated(SurfaceHolder holder) {
-		update(-1);
+//		update(-1);
 	}
 
 	public void surfaceDestroyed(SurfaceHolder holder) {

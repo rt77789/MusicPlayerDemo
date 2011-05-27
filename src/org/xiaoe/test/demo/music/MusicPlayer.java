@@ -7,8 +7,9 @@ import java.util.Map.Entry;
 
 import org.xiaoe.test.demo.lrcview.LrcView;
 import org.xiaoe.test.demo.parser.LrcParser;
-import org.xiaoe.test.demo.util.Pair;
-import org.xiaoe.test.demo.util.Util;
+import org.xiaoe.test.demo.struct.Pair;
+import org.xiaoe.test.demo.struct.Util;
+import org.xiaoe.test.demo.util.ID3v2;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -48,6 +49,8 @@ public class MusicPlayer extends Activity {
 	private int[] timeSpots;
 
 	private Map<Integer, TextView> lrcTextView;
+
+	private ID3v2 id3v2;
 
 	private Handler mHandle = new Handler() {
 		@Override
@@ -115,8 +118,7 @@ public class MusicPlayer extends Activity {
 		return null;
 	}
 
-	private void initialize(String filePath) throws IllegalStateException,
-			IOException {
+	private void initialize(String filePath) throws Exception {
 
 		sb = (SeekBar) findViewById(R.id.seekBar1);
 
@@ -132,6 +134,7 @@ public class MusicPlayer extends Activity {
 		if (lrcView == null) {
 			Log.d("xiaoe", "lrcView == null.");
 		}
+
 		english = new MediaPlayer();
 
 		english.setDataSource(filePath);
@@ -176,19 +179,30 @@ public class MusicPlayer extends Activity {
 			Log.d("xiaoe", "lrcDir is [" + lrcDir + "]");
 		}
 
-		lrc = new LrcParser(lrcDir);
+		try {
+			lrc = new LrcParser(lrcDir);
+			while (lrc.hasNext()) {
+				Pair<Integer, String> line = lrc.next();
+				if (line == null)
+					continue;
 
-		while (lrc.hasNext()) {
-			Pair<Integer, String> line = lrc.next();
-			if (line == null)
-				continue;
-
-			stamps.put(line.first, line.second);
+				stamps.put(line.first, line.second);
+			}
+		} catch (Exception e) {
+			Log.d("xiaoe", "LrcParser exception.");
 		}
 
+		Log.d("xiaoe", "fillTimeSpots before.");
 		fillTimeSpots();
 
 		lrcView.setStamps(stamps);
+
+		id3v2 = new ID3v2(filePath);
+
+		lrcView.setBackgroundData(id3v2.getAPIC());
+		Log.d("xiaoe", "setBackgroundData over.");
+
+		//lrcView.update(-1);
 	}
 
 	// # Destroy the current object and the super class.

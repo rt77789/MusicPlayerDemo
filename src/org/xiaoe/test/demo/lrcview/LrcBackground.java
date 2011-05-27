@@ -3,8 +3,12 @@ package org.xiaoe.test.demo.lrcview;
 import java.io.FileNotFoundException;
 import java.util.Map;
 
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.util.Log;
 import android.view.View;
 
@@ -12,12 +16,29 @@ public class LrcBackground {
 
 	private int backColor;
 	private LrcAnimater ball;
+	private Bitmap bitmap;
 	private View view;
+	private Paint paint;
 
 	public LrcBackground(View view) throws FileNotFoundException {
 		backColor = Color.parseColor("black");
+		paint = new Paint();
+
 		this.view = view;
+
 		ball = new LrcAnimater(view);
+	}
+
+	public void setBackgroundData(byte[] data) {
+		if (data == null) {
+			Log.d("xiaoe", "setBackgroundData argument data == null");
+		}
+		
+		//BitmapFactory.
+		bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+		if (bitmap == null) {
+			Log.d("xiaoe", "BitmapFactory.decodeByteArray returns null");
+		}
 	}
 
 	public void setStamps(Map<Integer, String> stamps) {
@@ -29,7 +50,13 @@ public class LrcBackground {
 		if (canvas == null) {
 			Log.d("xiaoe", "canvas == null");
 		}
-		canvas.drawColor(backColor);
+
+		if (bitmap != null) {
+			canvas.drawBitmap(bitmap.extractAlpha(), 50, 50, paint);
+		}
+		else {
+			canvas.drawColor(backColor);
+		}
 		ball.draw(canvas);
 	}
 

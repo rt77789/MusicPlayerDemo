@@ -6,7 +6,7 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.xiaoe.test.demo.util.Pair;
+import org.xiaoe.test.demo.struct.Pair;
 
 
 public class LrcParser {
