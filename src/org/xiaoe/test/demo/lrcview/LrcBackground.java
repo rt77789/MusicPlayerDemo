@@ -52,10 +52,14 @@ public class LrcBackground {
 		}
 
 		if (bitmap != null) {
-			canvas.drawBitmap(bitmap.extractAlpha(), 50, 50, paint);
+			
+			int bitHeight = (view.getHeight() - bitmap.getHeight()) / 2;
+			int bitWidth = (view.getWidth() - bitmap.getWidth()) / 2;
+			
+			canvas.drawBitmap(bitmap, bitWidth, bitHeight, paint);
 		}
 		else {
-			canvas.drawColor(backColor);
+			canvas.drawColor(this.backColor);
 		}
 		ball.draw(canvas);
 	}

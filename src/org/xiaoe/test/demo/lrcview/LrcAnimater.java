@@ -130,7 +130,7 @@ public class LrcAnimater {
 
 		if (wsum <= view.getWidth()) {
 			res.add(line);
-			Log.d("xiaoe", "slice:" + line);
+			// Log.d("xiaoe", "slice:" + line);
 		} else {
 			int i = 0;
 			wsum = 0;
@@ -156,7 +156,7 @@ public class LrcAnimater {
 			}
 			String slice = line.substring(0, i);
 			res.add(slice);
-			Log.d("xiaoe", "slice:" + slice);
+		//	Log.d("xiaoe", "slice:" + slice);
 			res.addAll(autoFolding(line.substring(i+1)));
 		}
 

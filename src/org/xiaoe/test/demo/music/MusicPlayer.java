@@ -66,15 +66,15 @@ public class MusicPlayer extends Activity {
 					currentTime.setText(minutes + ":" + seconds);
 
 					// # If the lrc is not found, just jump out.
-					if (lrc != null) {
+					// if (lrc != null) {
 
-						String sentence = locateStamp(msg.arg1);
-						lrcLine.setText(sentence);
+					String sentence = locateStamp(msg.arg1);
+					lrcLine.setText(sentence);
 
-						int index = searchTimeSpots(msg.arg1);
-						if (lrcView.isCreated())
-							lrcView.update(index);
-					}
+					int index = searchTimeSpots(msg.arg1);
+					if (lrcView.isCreated())
+						lrcView.update(index);
+					// }
 				}
 
 				if (sb == null) {
@@ -202,7 +202,7 @@ public class MusicPlayer extends Activity {
 		lrcView.setBackgroundData(id3v2.getAPIC());
 		Log.d("xiaoe", "setBackgroundData over.");
 
-		//lrcView.update(-1);
+		// lrcView.update(-1);
 	}
 
 	// # Destroy the current object and the super class.
@@ -281,9 +281,7 @@ public class MusicPlayer extends Activity {
 	private void fillTimeSpots() {
 		timeSpots = new int[stamps.size()];
 		if (timeSpots == null) {
-			Log
-					.d("MusicPlayer->fillTimeSpots:",
-							" timeSpots new returns null.");
+			Log.d("MusicPlayer->fillTimeSpots:", " timeSpots new returns null.");
 		}
 		int i = 0;
 		for (Entry<Integer, String> p : stamps.entrySet()) {
@@ -306,30 +304,40 @@ public class MusicPlayer extends Activity {
 	 */
 	public String locateStamp(int time) {
 		int index = searchTimeSpots(time);
-		String stamp = stamps.get(timeSpots[index]);
-		return stamp;
+		if (index >= 0 && index < timeSpots.length) {
+			return stamps.get(timeSpots[index]);
+		}
+		return null;
 	}
 
 	public TextView locateTextView(int time) {
 		int index = searchTimeSpots(time);
-		TextView stamp = lrcTextView.get(timeSpots[index]);
-		return stamp;
+		if (index >= 0 && index < timeSpots.length) {
+			return lrcTextView.get(timeSpots[index]);
+		}
+		return null;
 	}
 
 	public TextView prevTextView(int time) {
 		int index = searchTimeSpots(time) - 1;
 		if (index < 0)
 			return null;
-		TextView stamp = lrcTextView.get(timeSpots[index]);
-		return stamp;
+		if (index >= 0 && index < timeSpots.length) {
+			TextView stamp = lrcTextView.get(timeSpots[index]);
+			return stamp;
+		}
+		return null;
 	}
 
 	public TextView nextTextView(int time) {
 		int index = searchTimeSpots(time) + 1;
 		if (index >= timeSpots.length)
 			return null;
-		TextView stamp = lrcTextView.get(timeSpots[index]);
-		return stamp;
+		if (index >= 0 && index < timeSpots.length) {
+			TextView stamp = lrcTextView.get(timeSpots[index]);
+			return stamp;
+		}
+		return null;
 	}
 
 	/**
@@ -342,6 +350,10 @@ public class MusicPlayer extends Activity {
 	private int searchTimeSpots(int time) {
 
 		int left = 0, right = timeSpots.length - 1;
+
+		if (right < left)
+			return -1;
+
 		if (time >= timeSpots[right])
 			return right;
 		if (time <= timeSpots[left])
