@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -130,6 +131,8 @@ public class ID3v2 {
 		String headerID = new String(fr.getHeader().getID());
 		if (headerID.equals("APIC")) {
 			APIC(fr);
+		} else {
+			T0_Z(fr);
 		}
 
 		// if (headerID.equals("USLT")) {
@@ -149,7 +152,6 @@ public class ID3v2 {
 		// } else {
 		// T0_Z(fr);
 		// }
-		// if(strncmp(str, "USLT", 4) == 0) { USLT(fr); }
 	}
 
 	private void UFID(Frame fr) {
@@ -311,7 +313,7 @@ public class ID3v2 {
 		}
 
 		// # write into APIC byte[].
-		APIC = Arrays.copyOfRange(data, i+1, fr.getHeader().size());
+		APIC = Arrays.copyOfRange(data, i + 1, fr.getHeader().size());
 
 	}
 
@@ -354,12 +356,31 @@ public class ID3v2 {
 	private void PRIV(Frame fr) {
 	}
 
-	private void T0_Z(Frame fr) {
+	private void T0_Z(Frame fr) throws UnsupportedEncodingException {
+		byte[] data = fr.getData();
+
+		System.out.println(new String(fr.getHeader().getID()));
+
+		// If ISO-8859-1 is used this byte should be $00, if Unicode is used it
+		// should be $01.
+
+		System.out.println("Encoding: " + data[0]);
+
+		String oriText = null;
+		if (data[0] == 0) {
+			oriText = new String(Arrays.copyOfRange(data, 1, data.length),
+					"iso-8859-1");
+		} else {
+			oriText = new String(Arrays.copyOfRange(data, 1, data.length),
+					"utf16");
+		}
+
+		System.out.println("Text: " + oriText);
 	}
 
 	private void W0_Z(Frame fr) {
 	}
-	
+
 	public byte[] getAPIC() {
 		return APIC;
 	}
@@ -372,21 +393,24 @@ public class ID3v2 {
 
 	public static void main(String[] args) {
 		try {
-			String fileName = "resourceOfMine/Debussy-Prelude-a-lapres-midi.mp3";
+			String fileName = "D:/TDdownload/cic-disc-1/Outro-Music.mp3";
 			ID3v2 id3v2 = new ID3v2(fileName);
-			
+
 			FileOutputStream fw = null;
 			try {
-				fw = new FileOutputStream(new File(fileName + "." + "jpg"));
+
 				byte[] data = id3v2.getAPIC();
-				//for (++i; i < fr.getHeader().size(); ++i) {
+				// for (++i; i < fr.getHeader().size(); ++i) {
+				if (data != null) {
+					fw = new FileOutputStream(new File(fileName + "." + "jpg"));
 					fw.write(data, 0, data.length);
-				//}
+				}
+				// }
 			} finally {
 				if (fw != null)
 					fw.close();
 			}
-			
+
 			id3v2.close();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

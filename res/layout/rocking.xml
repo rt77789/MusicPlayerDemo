@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical" android:layout_width="fill_parent"
-	android:layout_height="fill_parent" android:focusable="true">
-	<LinearLayout android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:id="@+id/linearLayout1"
-		android:orientation="vertical">
-		<Button android:layout_height="wrap_content" android:text="Button"
-			android:layout_width="wrap_content" android:id="@+id/button1"
-			android:onClick="rockHandler"></Button>
-		<TextView android:layout_width="wrap_content" android:text="TextView"
-			android:id="@+id/textView3" android:layout_height="20dip"></TextView>
-		<TextView android:layout_height="wrap_content"
-			android:layout_width="wrap_content" android:text="TextView"
-			android:id="@+id/textView2"></TextView>
-		<TextView android:layout_height="wrap_content"
-			android:layout_width="wrap_content" android:text="TextView"
-			android:id="@+id/textView1"></TextView>
-		<SeekBar android:id="@+id/seekBar1" android:layout_width="fill_parent"
-			android:clickable="false" android:layout_height="wrap_content"></SeekBar>
+	android:gravity="center" android:padding="20dip" android:layout_height="fill_parent"
+	android:focusable="true">
 
-	</LinearLayout>
 	<org.xiaoe.test.demo.lrcview.LrcView
 		android:id="@+id/view1" android:layout_width="320dip"
-		android:layout_height="320dip" />
+
+		android:layout_height="250dip" />
+	<LinearLayout android:id="@+id/linearLayout1"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:paddingTop="10dip" android:gravity="center"
+		android:orientation="horizontal">
+		<TextView android:text="TextView" android:layout_height="wrap_content"
+			android:id="@+id/textView1" android:paddingRight="0dip"
+			android:layout_width="90dip"></TextView>
+		<Button android:id="@+id/button1" android:layout_height="wrap_content"
+			android:onClick="rockHandler" android:text="Button"
+			android:layout_width="70dip"></Button>
+		<TextView android:text="TextView" android:layout_height="wrap_content"
+			android:id="@+id/textView2" android:paddingLeft="30dip"
+			android:layout_width="90dip"></TextView>
+	</LinearLayout>
+	<SeekBar android:layout_width="270dip" android:layout_height="wrap_content"
+		android:id="@+id/seekBar1" android:clickable="false"
+		android:paddingLeft="10dip" android:paddingRight="10dip"></SeekBar>
 </LinearLayout>

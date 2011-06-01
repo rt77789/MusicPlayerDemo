@@ -82,9 +82,9 @@ public class LrcAnimater {
 			paint.setColor(Color.RED);
 
 			List<String> slices = autoFolding(stamps[currentIndex]);
-			int j = slices.size();
+			int j = 0;
 			for(String slice : slices) {
-				canvas.drawText(slice, position.x, position.y + spacing * --j, paint);
+				canvas.drawText(slice, position.x, position.y + spacing * j++, paint);
 			}
 			offsetY = slices.size() * spacing;
 		}

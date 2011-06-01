@@ -3,7 +3,6 @@ package org.xiaoe.test.demo.lrcview;
 import java.io.FileNotFoundException;
 import java.util.Map;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;

@@ -1,6 +1,5 @@
 package org.xiaoe.test.demo.music;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
@@ -19,6 +18,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -34,7 +34,7 @@ public class MusicPlayer extends Activity {
 	private TextView totalTime = null; // # TextView for displaying total time
 	// of the mp3 file.
 
-	private TextView lrcLine = null;
+	private Button rockButton = null;
 
 	private LrcView lrcView = null;
 
@@ -65,16 +65,9 @@ public class MusicPlayer extends Activity {
 
 					currentTime.setText(minutes + ":" + seconds);
 
-					// # If the lrc is not found, just jump out.
-					// if (lrc != null) {
-
-					String sentence = locateStamp(msg.arg1);
-					lrcLine.setText(sentence);
-
 					int index = searchTimeSpots(msg.arg1);
 					if (lrcView.isCreated())
 						lrcView.update(index);
-					// }
 				}
 
 				if (sb == null) {
@@ -83,6 +76,8 @@ public class MusicPlayer extends Activity {
 					int sMax = sb.getMax();
 					sb.setProgress(msg.arg1 * sMax / msg.arg2);
 				}
+				
+				
 			}
 		}
 	};
@@ -127,7 +122,7 @@ public class MusicPlayer extends Activity {
 		}
 		currentTime = (TextView) findViewById(R.id.textView1);
 		totalTime = (TextView) findViewById(R.id.textView2);
-		lrcLine = (TextView) findViewById(R.id.textView3);
+		rockButton = (Button) findViewById(R.id.button1);
 
 		lrcView = (LrcView) findViewById(R.id.view1);
 
@@ -148,10 +143,6 @@ public class MusicPlayer extends Activity {
 
 		if (currentTime == null) {
 			Log.d("Debug:", "get current == null.");
-		}
-
-		if (lrcLine == null) {
-			Log.d("Debug:", "get lrcLine == null.");
 		}
 
 		if (totalTime == null) {
@@ -223,11 +214,15 @@ public class MusicPlayer extends Activity {
 			Log.d("MusicPlayer->rockHandler:", "english == null.");
 		} else {
 			if (english.isPlaying()) {
+				rockButton.setText("Pause");
+
 				english.pause();
 				thread.over();
 				thread = null;
 			} else {
 				english.start();
+				rockButton.setText("Play");
+				
 				if (thread == null) {
 					thread = new myThread();
 					thread.start();
@@ -269,6 +264,7 @@ public class MusicPlayer extends Activity {
 					Log.d("myThread->run:", "english == null.");
 					msg.arg1 = 0;
 					msg.arg2 = 1;
+					rockButton.setText("Pause");
 				}
 				mHandle.sendMessage(msg);
 			}
@@ -281,7 +277,9 @@ public class MusicPlayer extends Activity {
 	private void fillTimeSpots() {
 		timeSpots = new int[stamps.size()];
 		if (timeSpots == null) {
-			Log.d("MusicPlayer->fillTimeSpots:", " timeSpots new returns null.");
+			Log
+					.d("MusicPlayer->fillTimeSpots:",
+							" timeSpots new returns null.");
 		}
 		int i = 0;
 		for (Entry<Integer, String> p : stamps.entrySet()) {
@@ -291,9 +289,6 @@ public class MusicPlayer extends Activity {
 			}
 			timeSpots[i++] = p.getKey();
 		}
-		// for (i = 0; i < timeSpots.length; ++i) {
-		// Log.d("xiaoe", String.valueOf(timeSpots[i]));
-		// }
 	}
 
 	/**
